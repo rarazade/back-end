@@ -11,6 +11,18 @@ export const getAllCategories = async (req, res) => {
   }
 };
 
+export const getCategoryById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const category = await categoryService.getCategoryById(Number(id));
+    res.json(category);
+  } catch (err) {
+    console.error("Gagal ambil kategori:", err);
+    res.status(404).json({ message: err.message });
+  }
+};
+
 export const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
@@ -27,6 +39,23 @@ export const createCategory = async (req, res) => {
   }
 };
 
+export const updateCategory = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  try {
+    if (!name || name.trim() === "") {
+      return res.status(400).json({ message: "Nama kategori tidak boleh kosong" });
+    }
+
+    const updated = await categoryService.updateCategory(Number(id), name);
+    res.json(updated);
+  } catch (err) {
+    console.error("Gagal update kategori:", err);
+    res.status(400).json({ message: err.message });
+  }
+};
+
 export const deleteCategory = async (req, res) => {
   const { id } = req.params;
 
@@ -35,6 +64,6 @@ export const deleteCategory = async (req, res) => {
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error('Error deleting category:', error);
-    res.status(500).json({ error: 'Failed to delete category' });
+    res.status(500).json({ error: error.message });
   }
 };

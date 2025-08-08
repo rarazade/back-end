@@ -5,12 +5,16 @@ export const getAllGames = async () => {
 }
 
 export const getGames = async ({ platform, category, search }) => {
+  const categoryIds = category
+    ? category.split(",").map((id) => parseInt(id))
+    : undefined;
+
   return prisma.game.findMany({
     where: {
       ...(search && {
         title: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       }),
       ...(platform && {
@@ -18,30 +22,16 @@ export const getGames = async ({ platform, category, search }) => {
           has: platform,
         },
       }),
-      ...(category && {
+      ...(categoryIds && {
         categories: {
           some: {
             category: {
-              name: {
-                equals: category,
-                mode: 'insensitive',
-              },
+              id: { in: categoryIds },
             },
           },
         },
       }),
     },
-    include: {
-      categories: {
-        include: { category: true },
-      },
-    },
-  });
-};
-
-export const createGame = async (data) => {
-  return prisma.game.create({
-    data,
     include: {
       categories: {
         include: { category: true },
@@ -68,6 +58,17 @@ export const deleteGame = async (id) => {
 export const updateGame = async (id, data) => {
   return prisma.game.update({
     where: { id },
+    data,
+    include: {
+      categories: {
+        include: { category: true },
+      },
+    },
+  });
+};
+
+export const createGame = async (data) => {
+  return prisma.game.create({
     data,
     include: {
       categories: {

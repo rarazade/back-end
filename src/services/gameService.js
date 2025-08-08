@@ -1,41 +1,80 @@
-import prisma from "../prisma/client.js";
+import {
+  getAllGames,
+  getGames,
+  getGameById,
+  createGame,
+  updateGame,
+  deleteGame,
+  deleteGameCategories,
+} from "../repositories/gameRepository.js";
 
 export const getAllGamesService = async () => {
-  return await prisma.game.findMany()
-}
-export const createGameService = async ({ title, description, releaseDate, platforms, img, categoryIds }) => {
-  if (
-    !title ||
-    !img ||
-    !Array.isArray(platforms) || platforms.length === 0 ||
-    !Array.isArray(categoryIds) || categoryIds.length === 0
-  ) {
-    throw new Error("Missing or invalid data: title, img, platforms, and at least one category required");
-  }
+  return getAllGames();
+};
 
-  const check = new Date(releaseDate)
+export const getGamesService = async ({ platform, category, search }) => {
+  return getGames({ platform, category, search });
+};
 
-  // 🟡 Debug releaseDate
-  console.log("🎯 releaseDate typeof:", typeof check, check);
-  console.log("🎯 new Date:", new Date(releaseDate));
 
-  return await prisma.game.create({
-    data: {
-      title,
-      description,
-      platforms,
-      img,
-      releaseDate: check, // ✅ Perlu valid Date
-      categories: {
-        create: categoryIds.map((catId) => ({
-          category: { connect: { id: catId } },
-        })),
-      },
-    },
-    include: {
-      categories: {
-        include: { category: true },
-      },
+export const getGameByIdService = async (id) => {
+  return getGameById(id);
+};
+
+export const createGameService = async (data) => {
+  const { categoryIds, ...rest } = data;
+
+  return createGame({
+    ...rest,
+    categories: {
+      create: categoryIds.map((catId) => ({
+        category: { connect: { id: catId } },
+      })),
     },
   });
+};
+
+export const updateGameService = async (id, data, filename) => {
+  const {
+    title,
+    description,
+    releaseDate,
+    platform,
+    categories,
+  } = data;
+
+  const parsedPlatforms = platform ? platform.split(",") : [];
+
+  const parsedCategories = Array.isArray(categories)
+  ? categories.map(Number).filter((id) => !isNaN(id))
+  : typeof categories === "string"
+    ? [parseInt(categories)].filter((id) => !isNaN(id))
+    : [];
+
+
+  const updatedData = {
+    ...(title && { title }),
+    ...(description && { description }),
+    ...(releaseDate && { releaseDate: new Date(releaseDate) }),
+    ...(parsedPlatforms.length > 0 && { platforms: parsedPlatforms }),
+    ...(filename && { img: filename }),
+  };
+
+  // Hapus relasi lama
+  await deleteGameCategories(id);
+
+  // Update game + relasi baru
+  return updateGame(id, {
+    ...updatedData,
+    categories: {
+      create: parsedCategories.map((catId) => ({
+        category: { connect: { id: catId } },
+      })),
+    },
+  });
+};
+
+export const deleteGameService = async (id) => {
+  await deleteGameCategories(id);
+  return deleteGame(id);
 };

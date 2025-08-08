@@ -1,19 +1,34 @@
 import express from "express";
-import { createGame, getAllGame } from "../controllers/gameController.js";
+import {
+  createGame,
+  getGames,
+  getAllGame,
+  getGameById,
+  updateGame,
+  deleteGame,
+} from "../controllers/gameController.js";
 import { uploadGameFiles } from "../middlewares/uploadMiddleware.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get('/games', getAllGame)
+// Public Routes
+router.get("/meta", async (req, res) => {
+  try {
+    const categories = await prisma.category.findMany();
+    const platforms = ["PC", "Mobile", "Console"]; // hardcoded
+    res.json({ categories, platforms });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal ambil meta" });
+  }
+});
+router.get('/games', getGames);
+router.get('/games/all', getAllGame);
+router.get('/games/:id', getGameById);
 
-router.post(
-  "/games",
-  authenticate,
-  uploadGameFiles,
-  createGame     
-);
 
-
-
+// Admin Routes (with file upload + auth)
+router.post('/games', authenticate, uploadGameFiles, createGame);
+router.put('/games/:id', authenticate, uploadGameFiles, updateGame);
+router.delete('/games/:id', authenticate, deleteGame);
 export default router;

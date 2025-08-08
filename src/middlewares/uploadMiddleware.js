@@ -1,10 +1,16 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
-const uploadDir = "uploads";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ Fix: path absolut
+const uploadDir = path.join(__dirname, "../../uploads");
+
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
@@ -20,5 +26,5 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ hanya untuk upload 1 gambar, field-nya: "img"
 export const uploadGameFiles = upload.single("img");
+export const uploadNewsFiles = upload.single("img");

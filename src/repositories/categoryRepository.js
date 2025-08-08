@@ -4,8 +4,27 @@ export const getAllCategories = async () => {
   return await prisma.category.findMany();
 };
 
+export const getCategoryById = async (id) => {
+  return await prisma.category.findUnique({
+    where: { id },
+  });
+};
+
+export const getCategoryByName = async (name) => {
+  return await prisma.category.findUnique({
+    where: { name },
+  });
+};
+
 export const createCategory = async (name) => {
   return await prisma.category.create({
+    data: { name },
+  });
+};
+
+export const updateCategory = async (id, name) => {
+  return await prisma.category.update({
+    where: { id },
     data: { name },
   });
 };

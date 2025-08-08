@@ -6,20 +6,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import gameRoutes from './routes/games.js';
-import newsRoutes from './routes/news.js';
 import categoryRoutes from './routes/categories.js';
 import adminRoutes from './routes/admin.js';
+import newsRoutes from './routes/news.js';
 
 // ES module __dirname shim
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 dotenv.config();
 
 const app = express();
 
 // buat folder uploads jika belum ada (dengan path absolut)
-const uploadDir = path.join(__dirname, 'uploads');
+const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -39,7 +38,7 @@ app.get('/healthz', (req, res) => {
 
 // Routes
 app.use('/api', gameRoutes);
-app.use('/api/news', newsRoutes);
+app.use('/api/news', newsRoutes); // ✅ Tambahkan ini
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admins', adminRoutes);
 
