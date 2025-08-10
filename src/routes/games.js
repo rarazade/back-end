@@ -9,6 +9,7 @@ import {
 } from "../controllers/gameController.js";
 import { uploadGameFiles } from "../middlewares/uploadMiddleware.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
+import prisma from '../prisma/client.js';
 
 const router = express.Router();
 
