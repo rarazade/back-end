@@ -1,4 +1,10 @@
 import prisma from "../prisma/client.js";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getAllNews = async () => {
   return await prisma.news.findMany({
@@ -24,6 +30,20 @@ export const updateNews = async (id, data) => {
     data,
   });
 };
+
+export const deleteImageNews = async (id) => {
+  const data = await prisma.news.findUnique({where: {id}})
+
+  s.unlink(`${path.join(__dirname, '../../uploads')}/${data.image}`, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+        // Handle the error (e.g., send an error response)
+      } else {
+        console.log('File deleted successfully.');
+        // Send a success response
+        }
+    });
+}
 
 export const deleteNews = async (id) => {
   return await prisma.news.delete({

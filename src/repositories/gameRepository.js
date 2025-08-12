@@ -1,7 +1,18 @@
 import prisma from '../prisma/client.js';
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getAllGames = async () => {
-  return prisma.game.findMany()
+  return prisma.game.findMany({
+    include: {
+      categories: { include: { category: true } },
+      requirements: { orderBy: { type: 'asc' } }
+    }
+  })
 }
 
 export const getGames = async ({ platform, category, search }) => {
@@ -36,6 +47,7 @@ export const getGames = async ({ platform, category, search }) => {
       categories: {
         include: { category: true },
       },
+      requirements: { orderBy: { type: 'asc' } }
     },
   });
 };
@@ -47,6 +59,7 @@ export const getGameById = async (id) => {
       categories: {
         include: { category: true },
       },
+      requirements: { orderBy: { type: 'asc' } }
     },
   });
 };
@@ -63,6 +76,7 @@ export const updateGame = async (id, data) => {
       categories: {
         include: { category: true },
       },
+      requirements: { orderBy: { type: 'asc' } }
     },
   });
 };
@@ -74,10 +88,43 @@ export const createGame = async (data) => {
       categories: {
         include: { category: true },
       },
+      requirements: { orderBy: { type: 'asc' } }
     },
   });
 };
 
 export const deleteGameCategories = async (gameId) => {
   return prisma.gameCategory.deleteMany({ where: { gameId } });
+};
+
+export const deleteImage = async (gameId) => {
+  const data = await prisma.game.findUnique({ where: { id : gameId } });
+  fs.unlink(`${path.join(__dirname, '../../uploads')}/${data.img}`, (err) => {
+    if (err) {
+      console.error('Error deleting file:', err);
+      // Handle the error (e.g., send an error response)
+    } else {
+      console.log('File deleted successfully.');
+      // Send a success response
+      }
+  });
+};
+
+export const deleteGameRequirements = async (gameId) => {
+  return prisma.systemRequirement.deleteMany({ where: { gameId } });
+};
+
+export const addGameRequirements = async (gameId, requirements) => {
+  return prisma.systemRequirement.createMany({
+    data: requirements.map((req) => ({
+      gameId,
+      type: req.type,
+      os: req.os,
+      processor: req.processor,
+      memory: req.memory,
+      graphics: req.graphics,
+      storage: req.storage,
+      additionalNotes: req.additionalNotes || null
+    }))
+  });
 };

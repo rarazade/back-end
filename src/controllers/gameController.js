@@ -7,7 +7,6 @@ import {
   deleteGameService,
 } from "../services/gameService.js";
 
-
 export const getGames = async (req, res) => {
   try {
     const { platform, category, search } = req.query;
@@ -55,7 +54,7 @@ export const getGameById = async (req, res) => {
 
 export const createGame = async (req, res) => {
   try {
-    const { title, description, releaseDate, platforms, categoryIds } = req.body;
+    const { title, description, releaseDate, platforms, categoryIds, requirements } = req.body;
     const img = req.file?.filename;
 
     if (!title || !description || !releaseDate || !platforms || !categoryIds || !img) {
@@ -64,6 +63,12 @@ export const createGame = async (req, res) => {
 
     const parsedPlatforms = Array.isArray(platforms) ? platforms : JSON.parse(platforms);
     const parsedCategoryIds = Array.isArray(categoryIds) ? categoryIds : JSON.parse(categoryIds);
+    const parsedRequirements = requirements
+      ? Array.isArray(requirements)
+        ? requirements
+        : JSON.parse(requirements)
+      : [];
+
     const parsedReleaseDate = new Date(releaseDate);
 
     if (isNaN(parsedReleaseDate)) {
@@ -77,6 +82,7 @@ export const createGame = async (req, res) => {
       platforms: parsedPlatforms,
       img,
       categoryIds: parsedCategoryIds,
+      requirements: parsedRequirements, // ✅ kirim ke service
     });
 
     res.status(201).json(newGame);
@@ -91,7 +97,17 @@ export const updateGame = async (req, res) => {
     const gameId = parseInt(req.params.id);
     const filename = req.file?.filename;
 
-    const updatedGame = await updateGameService(gameId, req.body, filename);
+    // ✅ pastikan requirements bisa dikirim dalam bentuk array/object
+    const bodyData = {
+      ...req.body,
+      requirements: req.body.requirements
+        ? Array.isArray(req.body.requirements)
+          ? req.body.requirements
+          : JSON.parse(req.body.requirements)
+        : []
+    };
+
+    const updatedGame = await updateGameService(gameId, bodyData, filename);
 
     res.json({ message: "Game updated successfully", game: updatedGame });
   } catch (error) {

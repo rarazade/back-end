@@ -1,5 +1,5 @@
+import { deleteImageNews } from "../repositories/newsRepository.js";
 import * as newsService from "../services/newsService.js";
-import path from "path";
 
 export const getAllNews = async (req, res) => {
   try {
@@ -55,6 +55,7 @@ export const updateNews = async (req, res) => {
     let imagePath = existing.image;
     if (req.file) {
       imagePath = req.file.filename;
+      await deleteImageNews(id)
     }
 
     const updated = await newsService.updateNews(id, {
@@ -76,6 +77,7 @@ export const deleteNews = async (req, res) => {
     const existing = await newsService.getNewsById(req.params.id);
     if (!existing) return res.status(404).json({ error: "News not found" });
 
+    await deleteImageNews(req.params.id)
     await newsService.deleteNews(req.params.id);
     res.json({ message: "News deleted successfully" });
   } catch (err) {
