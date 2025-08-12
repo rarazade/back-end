@@ -32,7 +32,7 @@ export const updateNews = async (id, data) => {
 };
 
 export const deleteImageNews = async (id) => {
-  const data = await prisma.news.findUnique({where: {id}})
+  const data = await prisma.news.findUnique({ where: { id: Number(id) } })
 
   s.unlink(`${path.join(__dirname, '../../uploads')}/${data.image}`, (err) => {
       if (err) {
