@@ -10,7 +10,6 @@ export const getAllGames = async () => {
   return prisma.game.findMany({
     include: {
       categories: { include: { category: true } },
-      requirements: { orderBy: { type: 'asc' } },
       screenshots: true,
       videos: true
     }
@@ -49,7 +48,6 @@ export const getGames = async ({ platform, category, search }) => {
       categories: {
         include: { category: true },
       },
-      requirements: { orderBy: { type: 'asc' } },
       screenshots: true,
       videos: true
     },
@@ -63,7 +61,6 @@ export const getGameById = async (id) => {
       categories: {
         include: { category: true },
       },
-      requirements: { orderBy: { type: 'asc' } },
       screenshots: true,
       videos: true
     },
@@ -82,7 +79,6 @@ export const updateGame = async (id, data) => {
       categories: {
         include: { category: true },
       },
-      requirements: { orderBy: { type: 'asc' } },
       screenshots: true,
       videos: true
     },
@@ -96,7 +92,6 @@ export const createGame = async (data) => {
       categories: {
         include: { category: true },
       },
-      requirements: { orderBy: { type: 'asc' } },
       screenshots: true,
       videos: true
     },
@@ -117,25 +112,6 @@ export const deleteImage = async (gameId) => {
       console.log('File deleted successfully.');
       // Send a success response
       }
-  });
-};
-
-export const deleteGameRequirements = async (gameId) => {
-  return prisma.systemRequirement.deleteMany({ where: { gameId } });
-};
-
-export const addGameRequirements = async (gameId, requirements) => {
-  return prisma.systemRequirement.createMany({
-    data: requirements.map((req) => ({
-      gameId,
-      type: req.type,
-      os: req.os,
-      processor: req.processor,
-      memory: req.memory,
-      graphics: req.graphics,
-      storage: req.storage,
-      additionalNotes: req.additionalNotes || null
-    }))
   });
 };
 

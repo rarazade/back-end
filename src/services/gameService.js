@@ -6,8 +6,6 @@ import {
   updateGame,
   deleteGame,
   deleteGameCategories,
-  deleteGameRequirements,
-  addGameRequirements,
   deleteImage,
   addGameScreenshots,
   deleteGameScreenshots,
@@ -29,7 +27,7 @@ export const getGameByIdService = async (id) => {
 };
 
 export const createGameService = async (data) => {
-  const { categoryIds, screenshots, videos, requirements, ...rest } = data;
+  const { categoryIds, screenshots, videos, ...rest } = data;
 
   // Create game + categories
   const game = await createGame({
@@ -41,11 +39,6 @@ export const createGameService = async (data) => {
     },
   });
 
-  // Jika ada requirements, tambahkan
-  if (requirements && requirements.length > 0) {
-    await addGameRequirements(game.id, requirements);
-  }
-  console.log(screenshots)
   if (screenshots?.length > 0) {
     await addGameScreenshots(game.id, screenshots);
   }
@@ -82,6 +75,7 @@ export const updateGameService = async (id, data, filename) => {
     ...(title && { title }),
     ...(description && { description }),
     ...(releaseDate && { releaseDate: new Date(releaseDate) }),
+    ...(JSON.parse(requirements) && { requirements: JSON.parse(requirements) }), // memasukkan request body requirements ke variable dan merubah ke tipe json
     ...(parsedPlatforms.length > 0 && { platforms: parsedPlatforms }),
     ...(filename && { img: filename }),
   };
@@ -100,7 +94,6 @@ export const updateGameService = async (id, data, filename) => {
 
   // Hapus data lama
   await deleteGameCategories(id);
-  await deleteGameRequirements(id);
 
 
   // Update game + categories baru
@@ -113,10 +106,6 @@ export const updateGameService = async (id, data, filename) => {
     },
   });
 
-  // Tambahkan requirements baru jika ada
-  if (requirements && requirements.length > 0) {
-    await addGameRequirements(id, requirements);
-  }
   if (screenshots?.length > 0) {
     await addGameScreenshots(id, screenshots);
   }
@@ -130,7 +119,6 @@ export const updateGameService = async (id, data, filename) => {
 export const deleteGameService = async (id) => {
   await deleteGameCategories(id);
   await deleteImage(id)
-  await deleteGameRequirements(id);
   await deleteGameScreenshots(id);
   await deleteGameVideos(id);
   return deleteGame(id);

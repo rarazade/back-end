@@ -72,11 +72,6 @@ export const createGame = async (req, res) => {
 
     const parsedPlatforms = Array.isArray(platforms) ? platforms : JSON.parse(platforms);
     const parsedCategoryIds = Array.isArray(categoryIds) ? categoryIds : JSON.parse(categoryIds);
-    const parsedRequirements = requirements
-      ? Array.isArray(requirements)
-        ? requirements
-        : JSON.parse(requirements)
-      : [];
 
     const parsedReleaseDate = new Date(releaseDate);
 
@@ -91,7 +86,7 @@ export const createGame = async (req, res) => {
       platforms: parsedPlatforms,
       img,
       categoryIds: parsedCategoryIds,
-      requirements: parsedRequirements,
+      requirements: JSON.parse(requirements), // ubah request body requirements menjadi json
       screenshots,
       videos
     });
@@ -111,14 +106,11 @@ export const updateGame = async (req, res) => {
     const screenshots = req.files?.screenshots ? req.files?.screenshots?.map(file => file.filename) : null;
     const videos = req.files?.videos ? req.files?.videos?.map(file => file.filename) : null;
 
+    console.log(req.files.screenshots)
+
     // ✅ pastikan requirements bisa dikirim dalam bentuk array/object
     const bodyData = {
       ...req.body,
-      requirements: req.body.requirements
-        ? Array.isArray(req.body.requirements)
-          ? req.body.requirements
-          : JSON.parse(req.body.requirements)
-        : [],
       screenshots,
       videos
     };

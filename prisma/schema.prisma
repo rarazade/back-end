@@ -19,8 +19,8 @@ model Game {
   createdAt  DateTime   @default(now())
   releaseDate DateTime
   platforms  String[]   // misal: ["PC", "Mobile"]
+  requirements Json
   categories GameCategory[]
-  requirements SystemRequirement[]
 }
 
 model Category {
@@ -56,20 +56,6 @@ model Admin {
   username  String   @unique
   password  String
   createdAt DateTime @default(now())
-}
-
-model SystemRequirement {
-  id              Int     @id @default(autoincrement())
-  gameId          Int
-  type            String  // "Minimum" atau "Recommended"
-  os              String
-  processor       String
-  memory          String
-  graphics        String
-  storage         String
-  additionalNotes String?
-
-  game            Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Screenshot {
