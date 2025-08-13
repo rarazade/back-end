@@ -17,7 +17,7 @@ const router = express.Router();
 router.get("/meta", async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
-    const platforms = ["PC", "Mobile", "Console"]; // hardcoded
+    const platforms = ["PC", "Mobile", "PC & Mobile"]; // hardcoded
     res.json({ categories, platforms });
   } catch (error) {
     res.status(500).json({ message: "Gagal ambil meta" });

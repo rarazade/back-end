@@ -31,7 +31,7 @@ export const getGames = async ({ platform, category, search }) => {
       }),
       ...(platform && {
         platforms: {
-          has: platform,
+          hasSome: [platform, 'PC & Mobile'],
         },
       }),
       ...(categoryIds && {
