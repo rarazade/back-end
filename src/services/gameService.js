@@ -56,14 +56,14 @@ export const updateGameService = async (id, data, filename) => {
     title,
     description,
     releaseDate,
-    platform,
+    platforms,
     categories,
     requirements,
     screenshots,
     videos
   } = data;
 
-  const parsedPlatforms = platform ? platform.split(",") : [];
+  const parsedPlatforms = platforms ? platforms.split(",") : [];
 
   const parsedCategories = Array.isArray(categories)
     ? categories.map(Number).filter((id) => !isNaN(id))
