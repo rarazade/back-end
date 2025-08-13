@@ -4,3 +4,5 @@ uploads
 .env
 
 /generated/prisma
+
+prisma/migrations

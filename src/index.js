@@ -9,6 +9,7 @@ import gameRoutes from './routes/games.js';
 import categoryRoutes from './routes/categories.js';
 import adminRoutes from './routes/admin.js';
 import newsRoutes from './routes/news.js';
+import jumbotronRoutes from './routes/jumbotrons.js';
 
 // ES module __dirname shim
 const __filename = fileURLToPath(import.meta.url);
@@ -41,6 +42,7 @@ app.use('/api', gameRoutes);
 app.use('/api/news', newsRoutes); // ✅ Tambahkan ini
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admins', adminRoutes);
+app.use('/api/jumbotrons', jumbotronRoutes);
 
 // centralized error handler (paling bawah)
 app.use((err, req, res, next) => {
