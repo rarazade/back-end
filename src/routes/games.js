@@ -7,7 +7,7 @@ import {
   updateGame,
   deleteGame,
 } from "../controllers/gameController.js";
-import { uploadGameFiles } from "../middlewares/uploadMiddleware.js";
+import { uploadGameAssets } from "../middlewares/uploadMiddleware.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 import prisma from '../prisma/client.js';
 
@@ -29,7 +29,7 @@ router.get('/games/:id', getGameById);
 
 
 // Admin Routes (with file upload + auth)
-router.post('/games', authenticate, uploadGameFiles, createGame);
-router.put('/games/:id', authenticate, uploadGameFiles, updateGame);
+router.post('/games', authenticate, uploadGameAssets, createGame);
+router.put('/games/:id', authenticate, uploadGameAssets, updateGame);
 router.delete('/games/:id', authenticate, deleteGame);
 export default router;

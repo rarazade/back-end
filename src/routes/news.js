@@ -9,8 +9,8 @@ router.get("/", newsController.getAllNews);
 router.get("/:id", newsController.getNewsById);
 
 // ✅ Only admin
-router.post("/", authenticate, uploadNewsFiles, newsController.createNews);
-router.put("/:id", authenticate, uploadNewsFiles, newsController.updateNews);
-router.delete("/:id", authenticate, newsController.deleteNews);
+router.post("/news", authenticate, uploadNewsFiles, newsController.createNews);
+router.put("/news:id", authenticate, uploadNewsFiles, newsController.updateNews);
+router.delete("news/:id", authenticate, newsController.deleteNews);
 
 export default router;

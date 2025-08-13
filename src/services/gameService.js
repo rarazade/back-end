@@ -8,7 +8,11 @@ import {
   deleteGameCategories,
   deleteGameRequirements,
   addGameRequirements,
-  deleteImage
+  deleteImage,
+  addGameScreenshots,
+  deleteGameScreenshots,
+  addGameVideos,
+  deleteGameVideos
 } from "../repositories/gameRepository.js";
 
 
@@ -25,7 +29,7 @@ export const getGameByIdService = async (id) => {
 };
 
 export const createGameService = async (data) => {
-  const { categoryIds, requirements, ...rest } = data;
+  const { categoryIds, screenshots, videos, requirements, ...rest } = data;
 
   // Create game + categories
   const game = await createGame({
@@ -41,6 +45,14 @@ export const createGameService = async (data) => {
   if (requirements && requirements.length > 0) {
     await addGameRequirements(game.id, requirements);
   }
+  console.log(screenshots)
+  if (screenshots?.length > 0) {
+    await addGameScreenshots(game.id, screenshots);
+  }
+
+  if (videos?.length > 0) {
+    await addGameVideos(game.id, videos);
+  }
 
   // Return game terbaru (dengan requirements)
   return getGameById(game.id);
@@ -53,7 +65,9 @@ export const updateGameService = async (id, data, filename) => {
     releaseDate,
     platform,
     categories,
-    requirements // ✅ tambahan
+    requirements,
+    screenshots,
+    videos
   } = data;
 
   const parsedPlatforms = platform ? platform.split(",") : [];
@@ -75,11 +89,19 @@ export const updateGameService = async (id, data, filename) => {
   if (filename) {
     await deleteImage(id)
   }
-  // Hapus categories lama
-  await deleteGameCategories(id);
 
-  // Hapus requirements lama
+  if (screenshots) {
+    await deleteGameScreenshots(id, screenshots);
+  }
+
+  if (videos) {
+    await deleteGameVideos(id, videos);
+  }
+
+  // Hapus data lama
+  await deleteGameCategories(id);
   await deleteGameRequirements(id);
+
 
   // Update game + categories baru
   const game = await updateGame(id, {
@@ -95,6 +117,12 @@ export const updateGameService = async (id, data, filename) => {
   if (requirements && requirements.length > 0) {
     await addGameRequirements(id, requirements);
   }
+  if (screenshots?.length > 0) {
+    await addGameScreenshots(id, screenshots);
+  }
+  if (videos?.length > 0) {
+    await addGameVideos(id, videos);
+  }
 
   return getGameById(id);
 };
@@ -102,6 +130,8 @@ export const updateGameService = async (id, data, filename) => {
 export const deleteGameService = async (id) => {
   await deleteGameCategories(id);
   await deleteImage(id)
-  await deleteGameRequirements(id); // ✅ Pastikan requirements ikut terhapus
+  await deleteGameRequirements(id);
+  await deleteGameScreenshots(id);
+  await deleteGameVideos(id);
   return deleteGame(id);
 };

@@ -1,3 +1,4 @@
+import { url } from "inspector";
 import {
   createGameService,
   getAllGamesService,
@@ -45,6 +46,12 @@ export const getGameById = async (req, res) => {
     res.status(200).json({
       ...game,
       imageUrl: `${process.env.BACKEND_ORIGIN}/uploads/${game.img}`,
+      screenshots: game.screenshots?.map(file =>
+        `${process.env.BACKEND_ORIGIN}/uploads/${file.image}`
+      ) || [],
+      videos: game.videos?.map(file =>
+        `${process.env.BACKEND_ORIGIN}/uploads/${file.url}`
+      ) || []
     });
   } catch (err) {
     console.error("Get game by ID error:", err);
@@ -55,9 +62,11 @@ export const getGameById = async (req, res) => {
 export const createGame = async (req, res) => {
   try {
     const { title, description, releaseDate, platforms, categoryIds, requirements } = req.body;
-    const img = req.file?.filename;
+    const img = req.files?.img[0].filename;
+    const screenshots = req.files?.screenshots?.map(file => file.filename) || []; 
+    const videos = req.files?.videos?.map(file => file.filename) || [];
 
-    if (!title || !description || !releaseDate || !platforms || !categoryIds || !img) {
+    if (!title || !description || !releaseDate || !platforms || !categoryIds) {
       throw new Error("Semua field wajib diisi");
     }
 
@@ -82,7 +91,9 @@ export const createGame = async (req, res) => {
       platforms: parsedPlatforms,
       img,
       categoryIds: parsedCategoryIds,
-      requirements: parsedRequirements, // ✅ kirim ke service
+      requirements: parsedRequirements,
+      screenshots,
+      videos
     });
 
     res.status(201).json(newGame);
@@ -95,7 +106,10 @@ export const createGame = async (req, res) => {
 export const updateGame = async (req, res) => {
   try {
     const gameId = parseInt(req.params.id);
-    const filename = req.file?.filename;
+
+    const filename = req.files?.img ? req.files?.img[0].filename : null ;
+    const screenshots = req.files?.screenshots ? req.files?.screenshots?.map(file => file.filename) : null;
+    const videos = req.files?.videos ? req.files?.videos?.map(file => file.filename) : null;
 
     // ✅ pastikan requirements bisa dikirim dalam bentuk array/object
     const bodyData = {
@@ -104,7 +118,9 @@ export const updateGame = async (req, res) => {
         ? Array.isArray(req.body.requirements)
           ? req.body.requirements
           : JSON.parse(req.body.requirements)
-        : []
+        : [],
+      screenshots,
+      videos
     };
 
     const updatedGame = await updateGameService(gameId, bodyData, filename);

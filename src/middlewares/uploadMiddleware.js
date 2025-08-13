@@ -19,12 +19,16 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const uniqueName = `asd-${Math.round(Math.random() * 1e9)}${ext}`;
+    const uniqueName = `zzzzzyyy-${Math.round(Math.random() * 1e9)}${ext}`;
     cb(null, uniqueName);
   },
 });
 
 const upload = multer({ storage });
 
-export const uploadGameFiles = upload.single("img");
+export const uploadGameAssets = upload.fields([
+    { name: 'img', maxCount: 1 },
+    { name: 'screenshots', maxCount: 12 },
+    { name: 'videos', maxCount: 5 },
+]);
 export const uploadNewsFiles = upload.single("img");
