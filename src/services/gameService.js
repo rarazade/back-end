@@ -10,7 +10,8 @@ import {
   addGameScreenshots,
   deleteGameScreenshots,
   addGameVideos,
-  deleteGameVideos
+  deleteGameVideos,
+  getScreenshoot
 } from "../repositories/gameRepository.js";
 
 
@@ -84,10 +85,6 @@ export const updateGameService = async (id, data, filename) => {
     await deleteImage(id)
   }
 
-  if (screenshots) {
-    await deleteGameScreenshots(id, screenshots);
-  }
-
   if (videos) {
     await deleteGameVideos(id, videos);
   }
@@ -106,7 +103,7 @@ export const updateGameService = async (id, data, filename) => {
     },
   });
 
-  if (screenshots?.length > 0) {
+  if (screenshots?.length > 0 && screenshots?.length + (await getScreenshoot(id)).length <= 12) {
     await addGameScreenshots(id, screenshots);
   }
   if (videos?.length > 0) {

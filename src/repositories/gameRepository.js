@@ -141,6 +141,10 @@ export const deleteGameScreenshots = async (gameId) => {
   return prisma.screenshot.deleteMany({ where: { gameId} });
 };
 
+export const getScreenshoot = async (id) => {
+  return await prisma.screenshot.findMany({where: { gameId: Number(id) }})
+}
+
 export const addGameVideos = async (gameId, videos) => {
   return prisma.videoSlider.createMany({
     data: videos.map((filename) => ({
