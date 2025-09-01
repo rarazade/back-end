@@ -11,9 +11,9 @@ import {
   deleteGameScreenshots,
   addGameVideos,
   deleteGameVideos,
-  getScreenshoot
+  getScreenshoot,
+  deleteSelectedScreenshots
 } from "../repositories/gameRepository.js";
-
 
 export const getAllGamesService = async () => {
   return getAllGames();
@@ -30,7 +30,6 @@ export const getGameByIdService = async (id) => {
 export const createGameService = async (data) => {
   const { categoryIds, screenshots, videos, ...rest } = data;
 
-  // Create game + categories
   const game = await createGame({
     ...rest,
     categories: {
@@ -45,10 +44,9 @@ export const createGameService = async (data) => {
   }
 
   if (videos?.length > 0) {
-    await addGameVideos(game.id, videos);
+    await addGameVideos(game.id, videos); // ✅ videos = URL array
   }
 
-  // Return game terbaru (dengan requirements)
   return getGameById(game.id);
 };
 
@@ -59,13 +57,12 @@ export const updateGameService = async (id, data, filename) => {
     releaseDate,
     platforms,
     categories,
-    requirements,
     screenshots,
-    videos
+    newVideos,        // ✅ hanya video baru
+    deletedVideos,    // ✅ hanya video yang dihapus
   } = data;
 
   const parsedPlatforms = platforms ? platforms.split(",") : [];
-
   const parsedCategories = Array.isArray(categories)
     ? categories.map(Number).filter((id) => !isNaN(id))
     : typeof categories === "string"
@@ -76,24 +73,26 @@ export const updateGameService = async (id, data, filename) => {
     ...(title && { title }),
     ...(description && { description }),
     ...(releaseDate && { releaseDate: new Date(releaseDate) }),
-    ...(JSON.parse(requirements) && { requirements: JSON.parse(requirements) }), // memasukkan request body requirements ke variable dan merubah ke tipe json
     ...(parsedPlatforms.length > 0 && { platforms: parsedPlatforms }),
     ...(filename && { img: filename }),
   };
 
   if (filename) {
-    await deleteImage(id)
+    await deleteImage(id);
   }
 
-  if (videos) {
-    await deleteGameVideos(id, videos);
+  // ✅ hapus video tertentu
+  if (deletedVideos?.length > 0) {
+    await deleteGameVideos(id, deletedVideos);
   }
 
-  // Hapus data lama
+  // ✅ tambah video baru
+  if (newVideos?.length > 0) {
+    await addGameVideos(id, newVideos);
+  }
+
   await deleteGameCategories(id);
 
-
-  // Update game + categories baru
   const game = await updateGame(id, {
     ...updatedData,
     categories: {
@@ -106,17 +105,18 @@ export const updateGameService = async (id, data, filename) => {
   if (screenshots?.length > 0 && screenshots?.length + (await getScreenshoot(id)).length <= 12) {
     await addGameScreenshots(id, screenshots);
   }
-  if (videos?.length > 0) {
-    await addGameVideos(id, videos);
-  }
 
   return getGameById(id);
 };
 
 export const deleteGameService = async (id) => {
   await deleteGameCategories(id);
-  await deleteImage(id)
   await deleteGameScreenshots(id);
-  await deleteGameVideos(id);
+  await deleteImage(id);
   return deleteGame(id);
+};
+
+
+export const deleteScreenshotsService = async (gameId, deletedIds) => {
+  return deleteSelectedScreenshots(gameId, deletedIds);
 };

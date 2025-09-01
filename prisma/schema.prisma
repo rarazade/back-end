@@ -80,3 +80,48 @@ model Jumbotron {
   createdAt DateTime @default(now())
 }
 
+
+model About {
+  id          Int          @id @default(autoincrement())
+  title       String
+  tagline     String
+  description String
+  vision      String?
+  mission     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  images      AboutImage[]
+  teamMembers TeamMember[]
+}
+
+enum ImageType {
+  BANNER
+  DOKUMENTASI
+  LAMPIRAN
+}
+
+model AboutImage {
+  id        Int      @id @default(autoincrement())
+  aboutId   Int
+  url       String
+  altText   String?
+  type      ImageType
+  createdAt DateTime @default(now())
+
+  about     About    @relation(fields: [aboutId], references: [id], onDelete: Cascade)
+}
+
+
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  aboutId   Int
+  name      String
+  role      String
+  photo     String?
+  linkedin  String?
+  github    String?
+  createdAt DateTime @default(now())
+
+  about     About    @relation(fields: [aboutId], references: [id], onDelete: Cascade)
+}

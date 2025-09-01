@@ -5,6 +5,19 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, "../../uploads");
+const isUrl = (s) => typeof s === "string" && /^https?:\/\//i.test(s);
+
+const safeUnlink = async (filepath) => {
+  try {
+    await fs.unlink(filepath);
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error("Error deleting file:", err);
+    }
+    // ENOENT diabaikan (file memang tidak ada), biarkan lanjut
+  }
+};
 
 export const getAllGames = async () => {
   return prisma.game.findMany({
@@ -103,17 +116,15 @@ export const deleteGameCategories = async (gameId) => {
 };
 
 export const deleteImage = async (gameId) => {
-  const data = await prisma.game.findUnique({ where: { id : gameId } });
-  fs.unlink(`${path.join(__dirname, '../../uploads')}/${data.img}`, (err) => {
-    if (err) {
-      console.error('Error deleting file:', err);
-      // Handle the error (e.g., send an error response)
-    } else {
-      console.log('File deleted successfully.');
-      // Send a success response
-      }
+  const game = await prisma.game.findUnique({
+    where: { id: gameId },
+    select: { img: true },
   });
+  if (!game?.img || isUrl(game.img)) return;         // URL? skip
+  const fp = path.join(uploadDir, game.img);
+  await safeUnlink(fp);
 };
+
 
 export const addGameScreenshots = async (gameId, screenshots) => {
   return prisma.screenshot.createMany({
@@ -141,31 +152,49 @@ export const deleteGameScreenshots = async (gameId) => {
   return prisma.screenshot.deleteMany({ where: { gameId} });
 };
 
+export const deleteSelectedScreenshots = async (gameId, deletedIds) => {
+  if (!deletedIds || deletedIds.length === 0) return;
+
+  const screenshots = await prisma.screenshot.findMany({
+    where: { id: { in: deletedIds }, gameId },
+  });
+
+  screenshots.forEach((s) => {
+    const filePath = path.join(uploadDir, s.image);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  });
+
+  return prisma.screenshot.deleteMany({
+    where: { id: { in: deletedIds }, gameId },
+  });
+};
+
 export const getScreenshoot = async (id) => {
   return await prisma.screenshot.findMany({where: { gameId: Number(id) }})
 }
 
 export const addGameVideos = async (gameId, videos) => {
-  return prisma.videoSlider.createMany({
-    data: videos.map((filename) => ({
-      gameId,
-      url: filename
-    }))
-  });
+  if (!Array.isArray(videos)) {
+    console.warn("videos is not an array:", videos);
+    return;
+  }
+
+  for (let rawUrl of videos) {
+    const url = rawUrl.trim();
+    if (!url) continue;
+
+    await prisma.videoSlider.create({
+      data: {
+        url,
+        gameId,
+      },
+    });
+  }
 };
 
 export const deleteGameVideos = async (gameId) => {
-  const data = await prisma.videoSlider.findMany({where: { gameId }})
-  data.map((e) => {
-    fs.unlink(`${path.join(__dirname, '../../uploads')}/${e.url}`, (err) => {
-      if (err) {
-        console.error('Error deleting file:', err);
-        // Handle the error (e.g., send an error response)
-      } else {
-        console.log('File deleted successfully.');
-        // Send a success response
-        }
-    });
-  })  
-  return prisma.videoSlider.deleteMany({ where: { gameId } });
+  // deleteMany mengembalikan { count } — tidak perlu di-loop
+  await prisma.video.deleteMany({ where: { gameId } });
 };
+
+

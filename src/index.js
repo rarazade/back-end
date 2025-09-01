@@ -11,6 +11,9 @@ import adminRoutes from './routes/admin.js';
 import newsRoutes from './routes/news.js';
 import jumbotronRoutes from './routes/jumbotrons.js';
 
+import aboutRoutes from './routes/about.js';
+import teamRoutes from './routes/team.js';
+
 // ES module __dirname shim
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,10 +42,13 @@ app.get('/healthz', (req, res) => {
 
 // Routes
 app.use('/api', gameRoutes);
-app.use('/api/news', newsRoutes); // ✅ Tambahkan ini
+app.use('/api/news', newsRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/jumbotrons', jumbotronRoutes);
+
+app.use('/api/about', aboutRoutes);
+app.use('/api/team', teamRoutes);
 
 // centralized error handler (paling bawah)
 app.use((err, req, res, next) => {

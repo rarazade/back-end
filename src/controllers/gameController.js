@@ -1,4 +1,3 @@
-import { url } from "inspector";
 import {
   createGameService,
   getAllGamesService,
@@ -6,7 +5,9 @@ import {
   getGameByIdService,
   updateGameService,
   deleteGameService,
+  deleteScreenshotsService,
 } from "../services/gameService.js";
+
 
 export const getGames = async (req, res) => {
   try {
@@ -44,40 +45,49 @@ export const getGameById = async (req, res) => {
     }
 
     res.status(200).json({
-      ...game,
-      imageUrl: `${process.env.BACKEND_ORIGIN}/uploads/${game.img}`,
-      screenshots: game.screenshots?.map(file =>
-        `${process.env.BACKEND_ORIGIN}/uploads/${file.image}`
-      ) || [],
-      videos: game.videos?.map(file =>
-        `${process.env.BACKEND_ORIGIN}/uploads/${file.url}`
-      ) || []
-    });
+  ...game,
+  imageUrl: game.img
+    ? `${process.env.BACKEND_ORIGIN}/uploads/${game.img}`
+    : null,
+  screenshots: game.screenshots?.map(file => ({
+    id: file.id,
+    url: `${process.env.BACKEND_ORIGIN}/uploads/${file.image}`
+  })) || [],
+  videos: game.videos?.map(v => v.url) || [],
+});
+
+    
   } catch (err) {
     console.error("Get game by ID error:", err);
     res.status(500).json({ message: err.message });
   }
 };
-
+ 
 export const createGame = async (req, res) => {
   try {
-    const { title, description, releaseDate, platforms, categoryIds, requirements } = req.body;
-    const img = req.files?.img[0].filename;
-    const screenshots = req.files?.screenshots?.map(file => file.filename) || []; 
-    const videos = req.files?.videos?.map(file => file.filename) || [];
+    const { title, description, releaseDate, platforms, categoryIds, videos, requirements } = req.body;
+    const img = req.files?.img?.[0]?.filename;
+    const screenshots = req.files?.screenshots?.map(file => file.filename) || [];
 
-    if (!title || !description || !releaseDate || !platforms || !categoryIds) {
+    if (!title || !description || !releaseDate || !platforms || !categoryIds || !img) {
       throw new Error("Semua field wajib diisi");
     }
 
     const parsedPlatforms = Array.isArray(platforms) ? platforms : JSON.parse(platforms);
     const parsedCategoryIds = Array.isArray(categoryIds) ? categoryIds : JSON.parse(categoryIds);
+    const parsedVideos = videos
+      ? Array.isArray(videos)
+        ? videos
+        : JSON.parse(videos)
+      : [];
+    const parsedRequirements = requirements
+      ? typeof requirements === "string"
+        ? JSON.parse(requirements)
+        : requirements
+      : {};
 
     const parsedReleaseDate = new Date(releaseDate);
-
-    if (isNaN(parsedReleaseDate)) {
-      throw new Error("Format releaseDate tidak valid");
-    }
+    if (isNaN(parsedReleaseDate)) throw new Error("Format releaseDate tidak valid");
 
     const newGame = await createGameService({
       title,
@@ -86,9 +96,9 @@ export const createGame = async (req, res) => {
       platforms: parsedPlatforms,
       img,
       categoryIds: parsedCategoryIds,
-      requirements: JSON.parse(requirements), // ubah request body requirements menjadi json
       screenshots,
-      videos
+      videos: parsedVideos,
+      requirements: parsedRequirements, // ✅ wajib dikirim
     });
 
     res.status(201).json(newGame);
@@ -101,28 +111,51 @@ export const createGame = async (req, res) => {
 export const updateGame = async (req, res) => {
   try {
     const gameId = parseInt(req.params.id);
+    const deletedScreenshots = req.body.deletedScreenshots
+      ? JSON.parse(req.body.deletedScreenshots)
+      : [];
 
-    const filename = req.files?.img ? req.files?.img[0].filename : null ;
-    const screenshots = req.files?.screenshots ? req.files?.screenshots?.map(file => file.filename) : null;
-    const videos = req.files?.videos ? req.files?.videos?.map(file => file.filename) : null;
+      const deletedVideos = Array.isArray(req.body.deletedVideos)
+      ? req.body.deletedVideos
+      : req.body.deletedVideos
+      ? JSON.parse(req.body.deletedVideos)
+      : [];
 
-    console.log(req.files.screenshots)
+    const newVideos = Array.isArray(req.body.newVideos)
+      ? req.body.newVideos
+      : req.body.newVideos
+      ? JSON.parse(req.body.newVideos)
+      : [];
 
-    // ✅ pastikan requirements bisa dikirim dalam bentuk array/object
-    const bodyData = {
+    // 🟢 DEBUG LOG
+    console.log("🎬 updateGame INPUT:");
+    console.log("  gameId:", gameId);
+    console.log("  deletedVideos:", deletedVideos);
+    console.log("  newVideos:", newVideos);
+
+
+
+    // hapus screenshot tertentu
+    if (deletedScreenshots.length > 0) {
+      await deleteScreenshotsService(gameId, deletedScreenshots);
+    }
+
+    const updatedGame = await updateGameService(gameId, {
       ...req.body,
-      screenshots,
-      videos
-    };
-
-    const updatedGame = await updateGameService(gameId, bodyData, filename);
+      deletedVideos,
+      newVideos,
+    });
 
     res.json({ message: "Game updated successfully", game: updatedGame });
-  } catch (error) {
-    console.error("🔥 Error in updateGame:", error);
-    res.status(500).json({ message: "Failed to update game", error: error.message });
+  } catch (err) {
+    console.error("🔥 Error in updateGame:", err);
+    res.status(500).json({
+      message: "Failed to update game",
+      error: err.message,
+    });
   }
 };
+
 
 export const deleteGame = async (req, res) => {
   try {
@@ -134,3 +167,4 @@ export const deleteGame = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
