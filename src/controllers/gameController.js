@@ -53,7 +53,10 @@ export const getGameById = async (req, res) => {
     id: file.id,
     url: `${process.env.BACKEND_ORIGIN}/uploads/${file.image}`
   })) || [],
-  videos: game.videos?.map(v => v.url) || [],
+videos: game.videos?.map(v => ({
+  id: v.id,
+  url: v.url
+})) || [],
 });
 
     
@@ -111,11 +114,12 @@ export const createGame = async (req, res) => {
 export const updateGame = async (req, res) => {
   try {
     const gameId = parseInt(req.params.id);
+
     const deletedScreenshots = req.body.deletedScreenshots
       ? JSON.parse(req.body.deletedScreenshots)
       : [];
 
-      const deletedVideos = Array.isArray(req.body.deletedVideos)
+    const deletedVideos = Array.isArray(req.body.deletedVideos)
       ? req.body.deletedVideos
       : req.body.deletedVideos
       ? JSON.parse(req.body.deletedVideos)
@@ -127,24 +131,34 @@ export const updateGame = async (req, res) => {
       ? JSON.parse(req.body.newVideos)
       : [];
 
-    // 🟢 DEBUG LOG
+    // 🟢 ambil file dari multer
+    const filename = req.files?.img?.[0]?.filename || null;
+    const newScreenshots = req.files?.screenshots?.map(f => f.filename) || [];
+
+    // DEBUG
     console.log("🎬 updateGame INPUT:");
     console.log("  gameId:", gameId);
+    console.log("  filename:", filename);
+    console.log("  newScreenshots:", newScreenshots);
+    console.log("  deletedScreenshots:", deletedScreenshots);
     console.log("  deletedVideos:", deletedVideos);
     console.log("  newVideos:", newVideos);
-
-
 
     // hapus screenshot tertentu
     if (deletedScreenshots.length > 0) {
       await deleteScreenshotsService(gameId, deletedScreenshots);
     }
 
-    const updatedGame = await updateGameService(gameId, {
-      ...req.body,
-      deletedVideos,
-      newVideos,
-    });
+    const updatedGame = await updateGameService(
+      gameId,
+      {
+        ...req.body,
+        screenshots: newScreenshots,
+        deletedVideos,
+        newVideos,
+      },
+      filename
+    );
 
     res.json({ message: "Game updated successfully", game: updatedGame });
   } catch (err) {
@@ -155,7 +169,6 @@ export const updateGame = async (req, res) => {
     });
   }
 };
-
 
 export const deleteGame = async (req, res) => {
   try {

@@ -125,7 +125,6 @@ export const deleteImage = async (gameId) => {
   await safeUnlink(fp);
 };
 
-
 export const addGameScreenshots = async (gameId, screenshots) => {
   return prisma.screenshot.createMany({
     data: screenshots.map((filename) => ({
@@ -192,9 +191,16 @@ export const addGameVideos = async (gameId, videos) => {
   }
 };
 
-export const deleteGameVideos = async (gameId) => {
-  // deleteMany mengembalikan { count } — tidak perlu di-loop
-  await prisma.video.deleteMany({ where: { gameId } });
+export const deleteGameVideos = async (gameId, deletedIds) => {
+  if (!deletedIds || deletedIds.length === 0) return;
+
+  return prisma.videoSlider.deleteMany({
+    where: {
+      id: { in: deletedIds },
+      gameId,
+    },
+  });
 };
+
 
 

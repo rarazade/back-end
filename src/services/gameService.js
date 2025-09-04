@@ -57,9 +57,9 @@ export const updateGameService = async (id, data, filename) => {
     releaseDate,
     platforms,
     categories,
-    screenshots,
-    newVideos,        // ✅ hanya video baru
-    deletedVideos,    // ✅ hanya video yang dihapus
+    screenshots,     // 🟢 sudah dari controller
+    newVideos,
+    deletedVideos,
   } = data;
 
   const parsedPlatforms = platforms ? platforms.split(",") : [];
@@ -78,15 +78,15 @@ export const updateGameService = async (id, data, filename) => {
   };
 
   if (filename) {
-    await deleteImage(id);
+    await deleteImage(id); // hapus img lama
   }
 
-  // ✅ hapus video tertentu
+  // hapus video tertentu
   if (deletedVideos?.length > 0) {
     await deleteGameVideos(id, deletedVideos);
   }
 
-  // ✅ tambah video baru
+  // tambah video baru
   if (newVideos?.length > 0) {
     await addGameVideos(id, newVideos);
   }
@@ -102,12 +102,17 @@ export const updateGameService = async (id, data, filename) => {
     },
   });
 
-  if (screenshots?.length > 0 && screenshots?.length + (await getScreenshoot(id)).length <= 12) {
-    await addGameScreenshots(id, screenshots);
+  // 🟢 tambahkan screenshot baru
+  if (screenshots?.length > 0) {
+    const existing = await getScreenshoot(id);
+    if (existing.length + screenshots.length <= 12) {
+      await addGameScreenshots(id, screenshots);
+    }
   }
 
   return getGameById(id);
 };
+
 
 export const deleteGameService = async (id) => {
   await deleteGameCategories(id);
