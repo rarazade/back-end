@@ -7,9 +7,12 @@ import {
   updateGame,
   deleteGame,
 } from "../controllers/gameController.js";
-import { updateGameMiddleware, uploadGameAssets } from "../middlewares/uploadMiddleware.js";
+import {
+  updateGameMiddleware,
+  uploadGameAssets,
+} from "../middlewares/uploadMiddleware.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
-import prisma from '../prisma/client.js';
+import prisma from "../prisma/client.js";
 
 const router = express.Router();
 
@@ -23,13 +26,12 @@ router.get("/meta", async (req, res) => {
     res.status(500).json({ message: "Gagal ambil meta" });
   }
 });
-router.get('/games', getGames);
-router.get('/games/all', getAllGame);
-router.get('/games/:id', getGameById);
-
+router.get("/games", getGames);
+router.get("/games/all", getAllGame);
+router.get("/games/:id", getGameById);
 
 // Admin Routes (with file upload + auth)
-router.post('/games', authenticate, uploadGameAssets, createGame);
-router.put('/games/:id', authenticate, updateGameMiddleware, updateGame);
-router.delete('/games/:id', authenticate, deleteGame);
+router.post("/games", authenticate, uploadGameAssets, createGame);
+router.put("/games/:id", authenticate, updateGameMiddleware, updateGame);
+router.delete("/games/:id", authenticate, deleteGame);
 export default router;

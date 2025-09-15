@@ -14,7 +14,7 @@ export const getAllNews = async () => {
 
 export const getNewsById = async (id) => {
   return await prisma.news.findUnique({
-    where: { id: Number(id) },
+    where: { id: id },
   });
 };
 
@@ -26,26 +26,26 @@ export const createNews = async (data) => {
 
 export const updateNews = async (id, data) => {
   return await prisma.news.update({
-    where: { id: Number(id) },
+    where: { id: id },
     data,
   });
 };
 
 export const deleteImageNews = async (id) => {
-  const data = await prisma.news.findUnique({ where: { id: Number(id) } })
+  const data = await prisma.news.findUnique({ where: { id: id } });
 
-  fs.unlink(`${path.join(__dirname, '../../uploads')}/${data.image}`, (err) => {
-      if (err) {
-        console.error('Error deleting file:', err);
-      } else {
-        console.log('File deleted successfully.');
-        // Send a success response
-        }
-    });
-}
+  fs.unlink(`${path.join(__dirname, "../../uploads")}/${data.image}`, (err) => {
+    if (err) {
+      console.error("Error deleting file:", err);
+    } else {
+      console.log("File deleted successfully.");
+      // Send a success response
+    }
+  });
+};
 
 export const deleteNews = async (id) => {
   return await prisma.news.delete({
-    where: { id: Number(id) },
+    where: { id: id },
   });
 };

@@ -8,7 +8,6 @@ import {
   deleteScreenshotsService,
 } from "../services/gameService.js";
 
-
 export const getGames = async (req, res) => {
   try {
     const { platform, category, search } = req.query;
@@ -34,54 +33,74 @@ export const getGameById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!id || isNaN(Number(id))) {
+    if (!id) {
       return res.status(400).json({ message: "Invalid game ID" });
     }
 
-    const game = await getGameByIdService(Number(id));
+    const game = await getGameByIdService(id);
 
     if (!game) {
       return res.status(404).json({ message: "Game not found" });
     }
 
     res.status(200).json({
-  ...game,
-  imageUrl: game.img
-    ? `${process.env.BACKEND_ORIGIN}/uploads/${game.img}`
-    : null,
-  screenshots: game.screenshots?.map(file => ({
-    id: file.id,
-    url: `${process.env.BACKEND_ORIGIN}/uploads/${file.image}`
-  })) || [],
-videos: game.videos?.map(v => ({
-  id: v.id,
-  url: v.url
-})) || [],
-});
-
-    
+      ...game,
+      imageUrl: game.img
+        ? `${process.env.BACKEND_ORIGIN}/uploads/${game.img}`
+        : null,
+      screenshots:
+        game.screenshots?.map((file) => ({
+          id: file.id,
+          url: `${process.env.BACKEND_ORIGIN}/uploads/${file.image}`,
+        })) || [],
+      videos:
+        game.videos?.map((v) => ({
+          id: v.id,
+          url: v.url,
+        })) || [],
+    });
   } catch (err) {
     console.error("Get game by ID error:", err);
     res.status(500).json({ message: err.message });
   }
 };
- 
+
 export const createGame = async (req, res) => {
   try {
-    const { title, description, releaseDate, platforms, categoryIds, videos, requirements } = req.body;
+    const {
+      title,
+      description,
+      releaseDate,
+      platforms,
+      categoryIds,
+      newVideos,
+      requirements,
+    } = req.body;
     const img = req.files?.img?.[0]?.filename;
-    const screenshots = req.files?.screenshots?.map(file => file.filename) || [];
+    const screenshots =
+      req.files?.screenshots?.map((file) => file.filename) || [];
 
-    if (!title || !description || !releaseDate || !platforms || !categoryIds || !img) {
+    if (
+      !title ||
+      !description ||
+      !releaseDate ||
+      !platforms ||
+      !categoryIds ||
+      !img
+    ) {
       throw new Error("Semua field wajib diisi");
     }
 
-    const parsedPlatforms = Array.isArray(platforms) ? platforms : JSON.parse(platforms);
-    const parsedCategoryIds = Array.isArray(categoryIds) ? categoryIds : JSON.parse(categoryIds);
-    const parsedVideos = videos
-      ? Array.isArray(videos)
+    const parsedPlatforms = Array.isArray(platforms)
+      ? platforms
+      : JSON.parse(platforms);
+    const parsedCategoryIds = Array.isArray(categoryIds)
+      ? categoryIds
+      : JSON.parse(categoryIds);
+    const parsedVideos = newVideos
+      ? Array.isArray(newVideos)
         ? videos
-        : JSON.parse(videos)
+        : JSON.parse(newVideos)
       : [];
     const parsedRequirements = requirements
       ? typeof requirements === "string"
@@ -90,7 +109,8 @@ export const createGame = async (req, res) => {
       : {};
 
     const parsedReleaseDate = new Date(releaseDate);
-    if (isNaN(parsedReleaseDate)) throw new Error("Format releaseDate tidak valid");
+    if (isNaN(parsedReleaseDate))
+      throw new Error("Format releaseDate tidak valid");
 
     const newGame = await createGameService({
       title,
@@ -113,7 +133,7 @@ export const createGame = async (req, res) => {
 
 export const updateGame = async (req, res) => {
   try {
-    const gameId = parseInt(req.params.id);
+    const gameId = req.params.id;
 
     const deletedScreenshots = req.body.deletedScreenshots
       ? JSON.parse(req.body.deletedScreenshots)
@@ -133,7 +153,7 @@ export const updateGame = async (req, res) => {
 
     // 🟢 ambil file dari multer
     const filename = req.files?.img?.[0]?.filename || null;
-    const newScreenshots = req.files?.screenshots?.map(f => f.filename) || [];
+    const newScreenshots = req.files?.screenshots?.map((f) => f.filename) || [];
 
     // DEBUG
     console.log("🎬 updateGame INPUT:");
@@ -173,11 +193,10 @@ export const updateGame = async (req, res) => {
 export const deleteGame = async (req, res) => {
   try {
     const { id } = req.params;
-    await deleteGameService(Number(id));
+    await deleteGameService(id);
     res.status(200).json({ message: "Game deleted successfully" });
   } catch (err) {
     console.error("Delete game error:", err);
     res.status(500).json({ message: err.message });
   }
 };
-

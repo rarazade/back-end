@@ -1,3 +1,4 @@
+import { error } from "console";
 import {
   getAllGames,
   getGames,
@@ -12,7 +13,7 @@ import {
   addGameVideos,
   deleteGameVideos,
   getScreenshoot,
-  deleteSelectedScreenshots
+  deleteSelectedScreenshots,
 } from "../repositories/gameRepository.js";
 
 export const getAllGamesService = async () => {
@@ -57,23 +58,18 @@ export const updateGameService = async (id, data, filename) => {
     releaseDate,
     platforms,
     categories,
-    screenshots,     // 🟢 sudah dari controller
+    screenshots, // 🟢 sudah dari controller
     newVideos,
     deletedVideos,
   } = data;
 
-  const parsedPlatforms = platforms ? platforms.split(",") : [];
-  const parsedCategories = Array.isArray(categories)
-    ? categories.map(Number).filter((id) => !isNaN(id))
-    : typeof categories === "string"
-      ? [parseInt(categories)].filter((id) => !isNaN(id))
-      : [];
+  const parsedCategories = Array.isArray(categories) ? categories : [];
 
   const updatedData = {
     ...(title && { title }),
     ...(description && { description }),
     ...(releaseDate && { releaseDate: new Date(releaseDate) }),
-    ...(parsedPlatforms.length > 0 && { platforms: parsedPlatforms }),
+    ...(platforms && { platforms: JSON.parse(platforms) }),
     ...(filename && { img: filename }),
   };
 
@@ -113,14 +109,12 @@ export const updateGameService = async (id, data, filename) => {
   return getGameById(id);
 };
 
-
 export const deleteGameService = async (id) => {
   await deleteGameCategories(id);
   await deleteGameScreenshots(id);
   await deleteImage(id);
   return deleteGame(id);
 };
-
 
 export const deleteScreenshotsService = async (gameId, deletedIds) => {
   return deleteSelectedScreenshots(gameId, deletedIds);

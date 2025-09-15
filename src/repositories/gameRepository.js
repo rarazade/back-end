@@ -1,4 +1,4 @@
-import prisma from '../prisma/client.js';
+import prisma from "../prisma/client.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -24,10 +24,10 @@ export const getAllGames = async () => {
     include: {
       categories: { include: { category: true } },
       screenshots: true,
-      videos: true
-    }
-  })
-}
+      videos: true,
+    },
+  });
+};
 
 export const getGames = async ({ platform, category, search }) => {
   const categoryIds = category
@@ -44,7 +44,7 @@ export const getGames = async ({ platform, category, search }) => {
       }),
       ...(platform && {
         platforms: {
-          hasSome: [platform, 'PC & Mobile'],
+          hasSome: [platform, "PC & Mobile"],
         },
       }),
       ...(categoryIds && {
@@ -62,7 +62,7 @@ export const getGames = async ({ platform, category, search }) => {
         include: { category: true },
       },
       screenshots: true,
-      videos: true
+      videos: true,
     },
   });
 };
@@ -75,7 +75,7 @@ export const getGameById = async (id) => {
         include: { category: true },
       },
       screenshots: true,
-      videos: true
+      videos: true,
     },
   });
 };
@@ -93,7 +93,7 @@ export const updateGame = async (id, data) => {
         include: { category: true },
       },
       screenshots: true,
-      videos: true
+      videos: true,
     },
   });
 };
@@ -106,7 +106,7 @@ export const createGame = async (data) => {
         include: { category: true },
       },
       screenshots: true,
-      videos: true
+      videos: true,
     },
   });
 };
@@ -120,7 +120,7 @@ export const deleteImage = async (gameId) => {
     where: { id: gameId },
     select: { img: true },
   });
-  if (!game?.img || isUrl(game.img)) return;        
+  if (!game?.img || isUrl(game.img)) return;
   const fp = path.join(uploadDir, game.img);
   await safeUnlink(fp);
 };
@@ -129,26 +129,26 @@ export const addGameScreenshots = async (gameId, screenshots) => {
   return prisma.screenshot.createMany({
     data: screenshots.map((filename) => ({
       gameId,
-      image: filename
-    }))
+      image: filename,
+    })),
   });
 };
 
 export const deleteGameScreenshots = async (gameId) => {
-  const data = await prisma.screenshot.findMany({where : {gameId}})
+  const data = await prisma.screenshot.findMany({ where: { gameId } });
   data.map((e) => {
     // console.log(e.image)
-    fs.unlink(`${path.join(__dirname, '../../uploads')}/${e.image}`, (err) => {
+    fs.unlink(`${path.join(__dirname, "../../uploads")}/${e.image}`, (err) => {
       if (err) {
-        console.error('Error deleting file:', err);
+        console.error("Error deleting file:", err);
         // Handle the error (e.g., send an error response)
       } else {
-        console.log('File deleted successfully.');
+        console.log("File deleted successfully.");
         // Send a success response
-        }
+      }
     });
-  })
-  return prisma.screenshot.deleteMany({ where: { gameId} });
+  });
+  return prisma.screenshot.deleteMany({ where: { gameId } });
 };
 
 export const deleteSelectedScreenshots = async (gameId, deletedIds) => {
@@ -169,8 +169,8 @@ export const deleteSelectedScreenshots = async (gameId, deletedIds) => {
 };
 
 export const getScreenshoot = async (id) => {
-  return await prisma.screenshot.findMany({where: { gameId: Number(id) }})
-}
+  return await prisma.screenshot.findMany({ where: { gameId: id } });
+};
 
 export const addGameVideos = async (gameId, videos) => {
   if (!Array.isArray(videos)) {
@@ -201,6 +201,3 @@ export const deleteGameVideos = async (gameId, deletedIds) => {
     },
   });
 };
-
-
-

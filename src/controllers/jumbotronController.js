@@ -14,7 +14,7 @@ export const addJumbotron = async (req, res) => {
     const { gameId } = req.body;
     if (!gameId) return res.status(400).json({ message: "gameId wajib diisi" });
 
-    const result = await service.add(Number(gameId));
+    const result = await service.add(gameId);
     res.status(201).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
