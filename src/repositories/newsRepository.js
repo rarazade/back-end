@@ -37,7 +37,6 @@ export const deleteImageNews = async (id) => {
   fs.unlink(`${path.join(__dirname, '../../uploads')}/${data.image}`, (err) => {
       if (err) {
         console.error('Error deleting file:', err);
-        // Handle the error (e.g., send an error response)
       } else {
         console.log('File deleted successfully.');
         // Send a success response

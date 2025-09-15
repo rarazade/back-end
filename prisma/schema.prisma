@@ -10,10 +10,10 @@ datasource db {
 }
 
 model Game {
-  id         Int        @id @default(autoincrement())
-  title      String
+  id          String   @id @default(uuid()) @db.VarChar
+  title       String   @db.VarChar
   description String
-  img        String
+  img         String   @db.VarChar
   screenshots Screenshot[]
   videos      VideoSlider[]
   createdAt  DateTime   @default(now())
@@ -25,27 +25,26 @@ model Game {
 }
 
 model Category {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique
-  createdAt  DateTime   @default(now())
+  id     String        @id @default(uuid()) @db.VarChar
+  name       String    @unique @db.VarChar
+  createdAt  DateTime  @default(now())
 
   games      GameCategory[]
 }
 
 model GameCategory {
-  game       Game     @relation(fields: [gameId], references: [id])
-  gameId     Int
+  id         String  @id @default(uuid()) @db.VarChar
+  gameId     String  @db.VarChar
+  categoryId String  @db.VarChar
 
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
-
-  @@id([gameId, categoryId])
+  game      Game     @relation(fields: [gameId], references: [id])
+  category  Category @relation(fields: [categoryId], references: [id])
 }
 
 model News {
-  id        Int      @id @default(autoincrement())
-  title     String
-  image     String
+  id        String    @id @default(uuid()) @db.VarChar
+  title     String    @db.VarChar
+  image     String    @db.VarChar
   date      DateTime
   excerpt   String
   content   String
@@ -53,37 +52,37 @@ model News {
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
+  id        String @id @default(uuid()) @db.VarChar
+  username  String   @unique  @db.VarChar
   password  String
   createdAt DateTime @default(now())
 }
 
 model Screenshot {
-  id      Int    @id @default(autoincrement())
-  gameId  Int
-  image   String
-  game    Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  id      String  @id @default(uuid()) @db.VarChar
+  gameId  String  @db.VarChar
+  image   String  @db.VarChar
+  game    Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model VideoSlider {
-  id      Int    @id @default(autoincrement())
-  gameId  Int
+  id      String @id @default(uuid()) @db.VarChar
+  gameId  String @db.VarChar
   url     String
   game    Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Jumbotron {
-  id        Int      @id @default(autoincrement())
-  gameId    Int      @unique // game hanya bisa muncul sekali di jumbotron
+  id        String   @id @default(uuid()) @db.VarChar
+  gameId    String      @unique @db.VarChar
   game      Game     @relation(fields: [gameId], references: [id])
   createdAt DateTime @default(now())
 }
 
 
 model About {
-  id          Int          @id @default(autoincrement())
-  title       String
+  id       String @id @default(uuid()) @db.VarChar
+  title       String @db.VarChar
   tagline     String
   description String
   vision      String?
@@ -102,8 +101,8 @@ enum ImageType {
 }
 
 model AboutImage {
-  id        Int      @id @default(autoincrement())
-  aboutId   Int
+  id        String @id @default(uuid()) @db.VarChar
+  aboutId   String @db.VarChar
   url       String
   altText   String?
   type      ImageType
@@ -114,11 +113,11 @@ model AboutImage {
 
 
 model TeamMember {
-  id        Int      @id @default(autoincrement())
-  aboutId   Int
-  name      String
+  id        String @id @default(uuid()) @db.VarChar
+  aboutId   String @db.VarChar
+  name      String @db.VarChar
   role      String
-  photo     String?
+  photo     String? @db.VarChar
   linkedin  String?
   github    String?
   createdAt DateTime @default(now())

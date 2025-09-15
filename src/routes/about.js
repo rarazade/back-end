@@ -15,7 +15,7 @@ const router = express.Router();
 router.get("/", getAboutsController);
 router.get("/:id", getAboutController);
 router.post("/", uploadAbout, createAboutController);
-router.put("/:id", uploadAbout, updateAboutController); // bisa update teks + tambah gambar sekaligus
+router.put("/:id", uploadAbout, updateAboutController);
 router.delete("/:id", deleteAboutController);
 router.delete("/image/:id", deleteAboutImageController);
 router.post("/:id/images", uploadAbout, addAboutImagesController);

@@ -15,7 +15,7 @@ export const getCategoryById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const category = await categoryService.getCategoryById(Number(id));
+    const category = await categoryService.getCategoryById(String(id));
     res.json(category);
   } catch (err) {
     console.error("Gagal ambil kategori:", err);
@@ -48,7 +48,7 @@ export const updateCategory = async (req, res) => {
       return res.status(400).json({ message: "Nama kategori tidak boleh kosong" });
     }
 
-    const updated = await categoryService.updateCategory(Number(id), name);
+    const updated = await categoryService.updateCategory(String(id), name);
     res.json(updated);
   } catch (err) {
     console.error("Gagal update kategori:", err);
@@ -60,7 +60,7 @@ export const deleteCategory = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await categoryService.deleteCategory(Number(id));
+    await categoryService.deleteCategory(String(id));
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error('Error deleting category:', error);

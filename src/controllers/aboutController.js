@@ -97,7 +97,7 @@ export const addAboutImagesController = async (req, res) => {
       type: Array.isArray(types) ? types[i] : types || "DOKUMENTASI",
     }));
 
-    const result = await addAboutImagesService(Number(req.params.id), images);
+    const result = await addAboutImagesService(String(req.params.id), images);
     res.json({ message: "Images added successfully", result });
   } catch (err) {
     console.error("Error adding images:", err);

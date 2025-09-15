@@ -120,7 +120,7 @@ export const deleteImage = async (gameId) => {
     where: { id: gameId },
     select: { img: true },
   });
-  if (!game?.img || isUrl(game.img)) return;         // URL? skip
+  if (!game?.img || isUrl(game.img)) return;        
   const fp = path.join(uploadDir, game.img);
   await safeUnlink(fp);
 };

@@ -24,7 +24,7 @@ export const createAbout = async (data, images = []) => {
 export const updateAbout = async (id, data, images = []) => {
   if (images.some((img) => img.type === "BANNER")) {
     const existingBanner = await prisma.aboutImage.findFirst({
-      where: { aboutId: Number(id), type: "BANNER" },
+      where: { aboutId: String(id), type: "BANNER" },
     });
     if (existingBanner) {
       throw new Error("Banner already exists for this About. Only one allowed.");
@@ -32,7 +32,7 @@ export const updateAbout = async (id, data, images = []) => {
   }
 
   return prisma.about.update({
-    where: { id: Number(id) },
+    where: { id: String(id) },
     data: {
       ...data,
       ...(images.length && {
@@ -56,23 +56,23 @@ export const getAllAbout = () =>
 
 export const getAboutById = (id) =>
   prisma.about.findUnique({
-    where: { id: Number(id) },
+    where: { id: String(id) },
     include: { images: true, teamMembers: true },
   });
 
 
 export const deleteAbout = (id) =>
   prisma.about.delete({
-    where: { id: Number(id) },
+    where: { id: String(id) },
     include: { images: true, teamMembers: true },
   });
 
 export const deleteAboutImage = (id) =>
-  prisma.aboutImage.delete({ where: { id: Number(id) } });
+  prisma.aboutImage.delete({ where: { id: String(id) } });
 
 export const addAboutImages = async (aboutId, images) => {
   const existingBanner = await prisma.aboutImage.findFirst({
-    where: { aboutId: Number(aboutId), type: "BANNER" },
+    where: { aboutId: String(aboutId), type: "BANNER" },
   });
 
   const hasNewBanner = images.some((img) => img.type === "BANNER");
@@ -85,7 +85,7 @@ export const addAboutImages = async (aboutId, images) => {
       url: img.filename,
       altText: img.originalname,
       type: img.type || "DOKUMENTASI",
-      aboutId: Number(aboutId),
+      aboutId: String(aboutId),
     })),
   });
 };

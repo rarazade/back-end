@@ -6,7 +6,7 @@ export const getAllCategories = async () => {
 
 export const getCategoryById = async (id) => {
   return await prisma.category.findUnique({
-    where: { id },
+    where: { id: String(id) },
   });
 };
 
@@ -24,13 +24,13 @@ export const createCategory = async (name) => {
 
 export const updateCategory = async (id, name) => {
   return await prisma.category.update({
-    where: { id },
+    where: { id: String(id) },
     data: { name },
   });
 };
 
 export const deleteCategory = async (id) => {
   return await prisma.category.delete({
-    where: { id },
+    where: { id: String(id) },
   });
 };

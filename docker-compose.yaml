@@ -1,23 +1,15 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15
     restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: wgguser
-      POSTGRES_PASSWORD: wggpass
-      POSTGRES_DB: wggdb
+    env_file:
+      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   backend:
     build: .
     container_name: wgg-backend
-    ports:
-      - "3000:3000"
     depends_on:
       - db
     env_file:
@@ -27,7 +19,10 @@ services:
       - ./uploads:/app/uploads
       - /app/node_modules
     working_dir: /app
-    command: npm run dev
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npx prisma generate &&
+             npm run dev"
 
 volumes:
   pgdata:

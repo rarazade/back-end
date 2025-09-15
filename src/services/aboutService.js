@@ -20,8 +20,6 @@ export const getAboutService = (id) => getAboutById(id);
 
 export const deleteAboutService = async (id) => {
   const about = await deleteAbout(id);
-
-  // Hapus semua file gambar & foto team
   about.images.forEach((img) => {
     const filePath = path.join(uploadDir, img.url);
     try {
@@ -30,7 +28,6 @@ export const deleteAboutService = async (id) => {
       console.warn(`Failed to delete image file: ${filePath}`, err);
     }
   });
-
   about.teamMembers.forEach((tm) => {
     if (tm.photo) {
       const filePath = path.join(uploadDir, tm.photo);
@@ -41,7 +38,6 @@ export const deleteAboutService = async (id) => {
       }
     }
   });
-
   return about;
 };
 

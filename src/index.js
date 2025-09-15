@@ -14,7 +14,6 @@ import jumbotronRoutes from './routes/jumbotrons.js';
 import aboutRoutes from './routes/about.js';
 import teamRoutes from './routes/team.js';
 
-// ES module __dirname shim
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
@@ -28,33 +27,29 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // middleware
-app.use(cors());
+app.use(cors({
+  origin: [process.env.ADMIN_ORIGIN, process.env.CLIENT_ORIGIN],
+  credentials: true
+}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // kalau butuh form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 
-// serve file statis upload secara eksplisit dengan path absolut
 app.use('/uploads', express.static(uploadDir));
 
-// health check (opsional tapi berguna)
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Routes
 app.use('/api', gameRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/jumbotrons', jumbotronRoutes);
-
 app.use('/api/about', aboutRoutes);
 app.use('/api/team', teamRoutes);
-
-// centralized error handler (paling bawah)
 app.use((err, req, res, next) => {
-  console.error('UNCAUGHT ERROR:', err);
+console.error('UNCAUGHT ERROR:', err);
 
-  // khusus untuk error dari multer
   if (err.name === 'MulterError') {
     return res.status(400).json({ error: err.message });
   }
