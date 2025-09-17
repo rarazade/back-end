@@ -45,7 +45,7 @@ export const createGameService = async (data) => {
   }
 
   if (videos?.length > 0) {
-    await addGameVideos(game.id, videos); // ✅ videos = URL array
+    await addGameVideos(game.id, videos);
   }
 
   return getGameById(game.id);
@@ -58,7 +58,7 @@ export const updateGameService = async (id, data, filename) => {
     releaseDate,
     platforms,
     categories,
-    screenshots, // 🟢 sudah dari controller
+    screenshots,
     newVideos,
     deletedVideos,
   } = data;
@@ -74,15 +74,13 @@ export const updateGameService = async (id, data, filename) => {
   };
 
   if (filename) {
-    await deleteImage(id); // hapus img lama
+    await deleteImage(id);
   }
 
-  // hapus video tertentu
   if (deletedVideos?.length > 0) {
     await deleteGameVideos(id, deletedVideos);
   }
 
-  // tambah video baru
   if (newVideos?.length > 0) {
     await addGameVideos(id, newVideos);
   }
@@ -98,7 +96,6 @@ export const updateGameService = async (id, data, filename) => {
     },
   });
 
-  // 🟢 tambahkan screenshot baru
   if (screenshots?.length > 0) {
     const existing = await getScreenshoot(id);
     if (existing.length + screenshots.length <= 12) {
