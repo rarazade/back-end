@@ -23,7 +23,7 @@ export const addJumbotron = async (req, res) => {
 
 export const deleteJumbotron = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await service.deleteJumbotron(id);
     res.status(200).json({ message: "Jumbotron deleted successfully" });
   } catch (error) {

@@ -57,13 +57,15 @@ export const updateGameService = async (id, data, filename) => {
     description,
     releaseDate,
     platforms,
-    categories,
+    categoryIds,
     screenshots,
     newVideos,
     deletedVideos,
   } = data;
 
-  const parsedCategories = Array.isArray(categories) ? categories : [];
+  const parsedCategories = Array.isArray(JSON.parse(categoryIds))
+    ? JSON.parse(categoryIds)
+    : [];
 
   const updatedData = {
     ...(title && { title }),
