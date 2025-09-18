@@ -2,11 +2,11 @@ import * as categoryService from '../services/categoryService.js';
 
 export const getAllCategories = async (req, res) => {
   try {
-    console.log("GET /categories masuk");
+    console.log("GET /categories");
     const categories = await categoryService.getCategories();
     res.json(categories);
   } catch (err) {
-    console.error("Gagal ambil kategori:", err);
+    console.error("Failed to take category:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -18,7 +18,7 @@ export const getCategoryById = async (req, res) => {
     const category = await categoryService.getCategoryById(String(id));
     res.json(category);
   } catch (err) {
-    console.error("Gagal ambil kategori:", err);
+    console.error("Failed to take category:", err);
     res.status(404).json({ message: err.message });
   }
 };
@@ -28,13 +28,13 @@ export const createCategory = async (req, res) => {
     const { name } = req.body;
 
     if (!name || name.trim() === "") {
-      return res.status(400).json({ message: "Nama kategori tidak boleh kosong" });
+      return res.status(400).json({ message: "The category name cannot be empty" });
     }
 
     const newCategory = await categoryService.addCategory(name);
     res.status(201).json(newCategory);
   } catch (err) {
-    console.error("Gagal tambah kategori:", err);
+    console.error("Failed to add category:", err);
     res.status(400).json({ message: err.message });
   }
 };
@@ -45,13 +45,13 @@ export const updateCategory = async (req, res) => {
 
   try {
     if (!name || name.trim() === "") {
-      return res.status(400).json({ message: "Nama kategori tidak boleh kosong" });
+      return res.status(400).json({ message: "The category name cannot be empty" });
     }
 
     const updated = await categoryService.updateCategory(String(id), name);
     res.json(updated);
   } catch (err) {
-    console.error("Gagal update kategori:", err);
+    console.error("Category update failed:", err);
     res.status(400).json({ message: err.message });
   }
 };

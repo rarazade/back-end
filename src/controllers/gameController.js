@@ -88,7 +88,7 @@ export const createGame = async (req, res) => {
       !categoryIds ||
       !img
     ) {
-      throw new Error("Semua field wajib diisi");
+      throw new Error("All fields are required to be filled in");
     }
 
     const parsedPlatforms = Array.isArray(platforms)
@@ -110,7 +110,7 @@ export const createGame = async (req, res) => {
 
     const parsedReleaseDate = new Date(releaseDate);
     if (isNaN(parsedReleaseDate))
-      throw new Error("Format releaseDate tidak valid");
+      throw new Error("Invalid releaseDate format");
 
     const newGame = await createGameService({
       title,
@@ -121,7 +121,7 @@ export const createGame = async (req, res) => {
       categoryIds: parsedCategoryIds,
       screenshots,
       videos: parsedVideos,
-      requirements: parsedRequirements, // ✅ wajib dikirim
+      requirements: parsedRequirements,
     });
 
     res.status(201).json(newGame);
@@ -151,11 +151,9 @@ export const updateGame = async (req, res) => {
       ? JSON.parse(req.body.newVideos)
       : [];
 
-    // 🟢 ambil file dari multer
     const filename = req.files?.img?.[0]?.filename || null;
     const newScreenshots = req.files?.screenshots?.map((f) => f.filename) || [];
 
-    // DEBUG
     console.log("🎬 updateGame INPUT:");
     console.log("  gameId:", gameId);
     console.log("  filename:", filename);
@@ -164,7 +162,6 @@ export const updateGame = async (req, res) => {
     console.log("  deletedVideos:", deletedVideos);
     console.log("  newVideos:", newVideos);
 
-    // hapus screenshot tertentu
     if (deletedScreenshots.length > 0) {
       await deleteScreenshotsService(gameId, deletedScreenshots);
     }
