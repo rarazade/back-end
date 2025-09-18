@@ -11,9 +11,12 @@ import {
 export const createAboutController = async (req, res) => {
   try {
     const { title, tagline, description, vision, mission, types } = req.body;
+    const parsedTypes = JSON.parse(types);
     const images = (req.files || []).map((file, i) => ({
       ...file,
-      type: Array.isArray(types) ? types[i] : types || "DOKUMENTASI",
+      type: Array.isArray(parsedTypes)
+        ? parsedTypes[i]
+        : parsedTypes || "DOKUMENTASI",
     }));
 
     const about = await createAboutService(
@@ -24,7 +27,9 @@ export const createAboutController = async (req, res) => {
     res.json(about);
   } catch (err) {
     console.error("Error creating about:", err);
-    res.status(err.message.includes("Banner") ? 400 : 500).json({ message: err.message });
+    res
+      .status(err.message.includes("Banner") ? 400 : 500)
+      .json({ message: err.message });
   }
 };
 
@@ -51,9 +56,12 @@ export const getAboutController = async (req, res) => {
 export const updateAboutController = async (req, res) => {
   try {
     const { title, tagline, description, vision, mission, types } = req.body;
+    const parsedTypes = JSON.parse(types);
     const images = (req.files || []).map((file, i) => ({
       ...file,
-      type: Array.isArray(types) ? types[i] : types || "DOKUMENTASI",
+      type: Array.isArray(parsedTypes)
+        ? parsedTypes[i]
+        : parsedTypes || "DOKUMENTASI",
     }));
 
     const about = await updateAboutService(
@@ -65,7 +73,9 @@ export const updateAboutController = async (req, res) => {
     res.json(about);
   } catch (err) {
     console.error("Error updating about:", err);
-    res.status(err.message.includes("Banner") ? 400 : 500).json({ message: err.message });
+    res
+      .status(err.message.includes("Banner") ? 400 : 500)
+      .json({ message: err.message });
   }
 };
 
@@ -101,6 +111,8 @@ export const addAboutImagesController = async (req, res) => {
     res.json({ message: "Images added successfully", result });
   } catch (err) {
     console.error("Error adding images:", err);
-    res.status(err.message.includes("Banner") ? 400 : 500).json({ message: err.message });
+    res
+      .status(err.message.includes("Banner") ? 400 : 500)
+      .json({ message: err.message });
   }
 };

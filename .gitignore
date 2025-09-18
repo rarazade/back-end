@@ -5,5 +5,3 @@ uploads
 
 /generated/prisma
 
-/prisma/migrations/*-shadow-database*
-
