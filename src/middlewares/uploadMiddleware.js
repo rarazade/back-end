@@ -42,7 +42,7 @@ const updateUpload = multer({
     if (file.fieldname === "screenshots") {
       req._screenshotCount++;
       if (req._screenshotCount + dataScreenshot.length > 12) {
-        return cb(new Error("Screenshot no more than 12"), false);
+        return cb(new Error("Screenshot tidak lebih dari 12"), false);
       }
     }
 
@@ -58,6 +58,9 @@ export const uploadGameAssets = (req, res, next) => {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
         return res.status(400).json({ message: "Screenshot no more than 12" });
+        return res
+          .status(400)
+          .json({ message: "Screenshot tidak lebih dari 12" });
       }
       return res.status(400).json({ message: err.message });
     }
@@ -70,6 +73,9 @@ export const updateGameMiddleware = (req, res, next) => {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
         return res.status(400).json({ message: "Screenshot no more than 12" });
+        return res
+          .status(400)
+          .json({ message: "Screenshot tidak lebih dari 12" });
       }
       return res.status(400).json({ message: err.message });
     }
