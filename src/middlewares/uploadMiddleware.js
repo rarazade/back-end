@@ -2,7 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import prisma from '../prisma/client.js';
+import prisma from "../prisma/client.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,7 +36,7 @@ const updateUpload = multer({
     if (!req._screenshotCount) req._screenshotCount = 0;
 
     const dataScreenshot = await prisma.screenshot.findMany({
-      where: { gameId: Number(req.params.id) },
+      where: { gameId: req.params.id },
     });
 
     if (file.fieldname === "screenshots") {
@@ -57,9 +57,7 @@ export const uploadGameAssets = (req, res, next) => {
   createUpload(req, res, function (err) {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
-        return res
-          .status(400)
-          .json({ message: "Screenshot no more than 12" });
+        return res.status(400).json({ message: "Screenshot no more than 12" });
       }
       return res.status(400).json({ message: err.message });
     }
@@ -71,9 +69,7 @@ export const updateGameMiddleware = (req, res, next) => {
   updateUpload(req, res, async function (err) {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
-        return res
-          .status(400)
-          .json({ message: "Screenshot no more than 12" });
+        return res.status(400).json({ message: "Screenshot no more than 12" });
       }
       return res.status(400).json({ message: err.message });
     }
