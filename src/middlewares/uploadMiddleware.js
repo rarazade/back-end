@@ -57,7 +57,6 @@ export const uploadGameAssets = (req, res, next) => {
   createUpload(req, res, function (err) {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
-        return res.status(400).json({ message: "Screenshot no more than 12" });
         return res
           .status(400)
           .json({ message: "Screenshot tidak lebih dari 12" });
@@ -72,7 +71,6 @@ export const updateGameMiddleware = (req, res, next) => {
   updateUpload(req, res, async function (err) {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
-        return res.status(400).json({ message: "Screenshot no more than 12" });
         return res
           .status(400)
           .json({ message: "Screenshot tidak lebih dari 12" });
