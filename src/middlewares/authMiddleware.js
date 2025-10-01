@@ -9,7 +9,6 @@ export const authenticate = (req, res, next) => {
     return res.status(401).json({ error: 'No authorization header provided' });
   }
 
-  // Expect format "Bearer <token>"
   const parts = authHeader.split(" ");
   if (parts.length !== 2) {
     return res.status(401).json({ error: 'Invalid authorization header format' });
@@ -27,10 +26,9 @@ export const authenticate = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.admin = decoded; // bisa dipakai downstream
+    req.admin = decoded;
     next();
   } catch (err) {
-    // detail ringan untuk debugging, jangan bocorkan ke client lebih dari perlu
     console.warn("JWT verification failed:", err.message);
     return res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
   }

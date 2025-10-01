@@ -10,7 +10,11 @@ export const register = async (username, password) => {
 
   const hashed = await bcrypt.hash(password, 10);
   const admin = await adminRepository.create(username, hashed);
-  return { message: 'Admin registered', admin: { id: admin.id, username: admin.username } };
+
+  return { 
+    message: 'Admin registered', 
+    admin: { id: admin.id, username: admin.username } 
+  };
 };
 
 export const login = async (username, password) => {
@@ -20,7 +24,11 @@ export const login = async (username, password) => {
   const isMatch = await bcrypt.compare(password, admin.password);
   if (!isMatch) throw new Error('Invalid credentials');
 
-  const token = jwt.sign({ id: admin.id, username: admin.username }, JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign(
+    { id: admin.id, username: admin.username },
+    JWT_SECRET,
+    { expiresIn: '1d' }
+  );
 
   return { message: 'Login successful', token };
 };
