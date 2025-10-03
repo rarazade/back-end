@@ -2,8 +2,8 @@ import * as adminService from '../services/adminService.js';
 
 export const register = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const result = await adminService.register(username, password);
+    const { username, password, role } = req.body;
+    const result = await adminService.register(username, password, role);
     res.status(201).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });

@@ -50,13 +50,14 @@ model News {
   content   String
   createdAt DateTime @default(now())
 }
-
 model Admin {
-  id        String @id @default(uuid()) @db.VarChar
+  id        String   @id @default(uuid()) @db.VarChar
   username  String   @unique  @db.VarChar
   password  String
+  role      String   @default("admin") // "admin" | "superadmin"
   createdAt DateTime @default(now())
 }
+
 
 model Screenshot {
   id      String  @id @default(uuid()) @db.VarChar

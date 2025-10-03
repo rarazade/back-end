@@ -20,13 +20,11 @@ dotenv.config();
 
 const app = express();
 
-// buat folder uploads jika belum ada (dengan path absolut)
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// middleware
 app.use(cors({
   origin: [process.env.ADMIN_ORIGIN, process.env.CLIENT_ORIGIN],
   credentials: true

@@ -4,8 +4,8 @@ export const findByUsername = async (username) => {
   return await prisma.admin.findUnique({ where: { username } });
 };
 
-export const create = async (username, hashedPassword) => {
+export const create = async (username, hashedPassword, role = "admin") => {
   return await prisma.admin.create({
-    data: { username, password: hashedPassword }
+    data: { username, password: hashedPassword, role }
   });
 };
