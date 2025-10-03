@@ -7,22 +7,33 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret";
 // 🔑 Login Admin / Superadmin
 export async function login(username, password) {
   const admin = await adminRepository.findByUsername(username);
-  if (!admin) throw new Error("Invalid credentials");
+  if (
+    username === process.env.SUPERADMIN_USERNAME ||
+    password === process.env.SUPERADMIN_PASSWORD
+  ) {
+    const token = jwt.sign({ username, role: "superadmin" }, JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    return {
+      message: "Login successful",
+      token,
+      role: admin.role,
+    };
+  } else if (admin) {
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) throw new Error("Invalid credentials");
 
-  const isPasswordValid = await bcrypt.compare(password, admin.password);
-  if (!isPasswordValid) throw new Error("Invalid credentials");
-
-  const token = jwt.sign(
-    { id: admin.id, username: admin.username, role: admin.role },
-    JWT_SECRET,
-    { expiresIn: "1d" }
-  );
-
-  return {
-    message: "Login successful",
-    token,
-    role: admin.role,
-  };
+    const token = jwt.sign({ username, role: admin.role }, JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    return {
+      message: "Login successful",
+      token,
+      role: admin.role,
+    };
+  } else {
+    throw new Error("Invalid credentials");
+  }
 }
 
 // 📝 Register Admin (hanya bisa dibuat oleh superadmin)
