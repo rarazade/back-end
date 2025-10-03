@@ -23,6 +23,15 @@ async function main() {
         role: "superadmin",
       },
     });
+
+    await prisma.admin.create({
+      data: {
+        username: "admin",
+        password: await bcrypt.hash("admin", 10),
+        role: "admin",
+      },
+    });
+
     console.log(`✅ Superadmin created: ${username}`);
   } else {
     console.log(`ℹ️ Superadmin already exists: ${username}`);

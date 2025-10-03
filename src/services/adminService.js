@@ -1,8 +1,8 @@
-import * as adminRepository from '../repositories/adminRepository.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import * as adminRepository from "../repositories/adminRepository.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
 // 🔑 Login Admin / Superadmin
 export async function login(username, password) {
@@ -21,7 +21,7 @@ export async function login(username, password) {
   return {
     message: "Login successful",
     token,
-    role: admin.role
+    role: admin.role,
   };
 }
 
@@ -38,7 +38,7 @@ export async function register(username, password, role = "admin") {
     admin: {
       id: admin.id,
       username: admin.username,
-      role: admin.role
-    }
+      role: admin.role,
+    },
   };
 }
